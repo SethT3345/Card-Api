@@ -1,0 +1,38 @@
+[
+  {
+    "id": "common",
+    "name": "Common",
+    "symbol": "●",
+    "description": "Most frequently found cards in booster packs"
+  },
+  {
+    "id": "uncommon",
+    "name": "Uncommon",
+    "symbol": "◆",
+    "description": "Less common than Common cards"
+  },
+  {
+    "id": "rare",
+    "name": "Rare",
+    "symbol": "★",
+    "description": "Rare cards found occasionally in packs"
+  },
+  {
+    "id": "holo-rare",
+    "name": "Holo Rare",
+    "symbol": "★",
+    "description": "Rare cards with holographic foil"
+  },
+  {
+    "id": "ultra-rare",
+    "name": "Ultra Rare",
+    "symbol": "★★",
+    "description": "Very rare cards with special artwork"
+  },
+  {
+    "id": "secret-rare",
+    "name": "Secret Rare",
+    "symbol": "★★★",
+    "description": "Hidden cards beyond the set's numbered collection"
+  }
+]

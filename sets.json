@@ -1,0 +1,14 @@
+[
+  {
+    "id": "base-set",
+    "name": "Base Set",
+    "releaseDate": "1999-01-09",
+    "cardCount": 102
+  },
+  {
+    "id": "jungle",
+    "name": "Jungle",
+    "releaseDate": "1999-06-16",
+    "cardCount": 64
+  }
+]
