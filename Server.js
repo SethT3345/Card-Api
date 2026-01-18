@@ -33,7 +33,7 @@ app.post("/getToken", (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
-    return res.status(400).json({ error: "Username and password required" });
+    return res.status(400).send("<h1>Error: Username and password required</h1>");
   }
 
   const user = users.find(
@@ -41,7 +41,7 @@ app.post("/getToken", (req, res) => {
   );
 
   if (!user) {
-    return res.status(401).json({ error: "Invalid credentials" });
+    return res.status(401).send("<h1>Error: Invalid credentials</h1>");
   }
 
   const token = jwt.sign(
@@ -50,7 +50,22 @@ app.post("/getToken", (req, res) => {
     { expiresIn: "1h" }
   );
 
-  res.json({ token });
+  res.send(`
+    <h1>Your Token</h1>
+    <p>Copy the token below:</p>
+    <textarea id="token" rows="5" cols="80" readonly>${token}</textarea>
+    <br><button onclick="copyToken()">Copy Token</button>
+    <p id="copied" style="color: green;"></p>
+    
+    <script>
+      function copyToken() {
+        const token = document.getElementById('token');
+        token.select();
+        document.execCommand('copy');
+        document.getElementById('copied').textContent = 'Token copied!';
+      }
+    </script>
+  `);
 });
 
 app.get("/getToken", (req, res) => {
@@ -62,6 +77,42 @@ app.get("/getToken", (req, res) => {
       <button type="submit">Login</button>
     </form>
   `);
+});
+
+app.get("/cards/random", (req, res) => {
+  res.send(`
+    <h1>Get Random Card</h1>
+    <input type="text" id="token" placeholder="Paste your token here" style="width: 500px;" />
+    <button onclick="getRandomCard()">Get Random Card</button>
+    <pre id="result"></pre>
+    
+    <script>
+      async function getRandomCard() {
+        const token = document.getElementById('token').value.trim();
+        
+        try {
+          const response = await fetch('/cards/random', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer ' + token
+            }
+          });
+          
+          const data = await response.json();
+          document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+        } catch (error) {
+          document.getElementById('result').textContent = 'Error: ' + error.message;
+        }
+      }
+    </script>
+  `);
+});
+
+app.post("/cards/random", authenticateToken, (req, res) => {
+  const data = JSON.parse(fs.readFileSync("./cards.json", "utf-8"));
+  const cards = data.cards; 
+  const randomIndex = Math.floor(Math.random() * cards.length);
+  res.json(cards[randomIndex]);
 });
 
 app.get("/cards", (req, res) => {
@@ -94,8 +145,8 @@ app.get("/cards", (req, res) => {
 });
 
 app.post("/cards", authenticateToken, (req, res) => {
-  const cards = JSON.parse(fs.readFileSync("./cards.json", "utf-8"));
-  res.json(cards);
+  const data = JSON.parse(fs.readFileSync("./cards.json", "utf-8"));
+  res.json(data.cards); // Return the cards array
 });
 
 app.get("/sets", (req, res) => {
@@ -166,40 +217,6 @@ app.post("/rarities", authenticateToken, (req, res) => {
   res.json(sets);
 });
 
-app.get("/rarities", (req, res) => {
-  res.send(`
-    <h1>Get Card Sets</h1>
-    <input type="text" id="token" placeholder="Paste your token here" style="width: 500px;" />
-    <button onclick="getSets()">Get Rarities</button>
-    <pre id="result"></pre>
-    
-    <script>
-      async function getSets() {
-        const token = document.getElementById('token').value;
-        
-        try {
-          const response = await fetch('/rarities', {
-            method: 'POST',
-            headers: {
-              'Authorization': 'Bearer ' + token
-            }
-          });
-          
-          const data = await response.json();
-          document.getElementById('result').textContent = JSON.stringify(data, null, 2);
-        } catch (error) {
-          document.getElementById('result').textContent = 'Error: ' + error.message;
-        }
-      }
-    </script>
-  `);
-});
-
-app.post("/rarities", authenticateToken, (req, res) => {
-  const sets = JSON.parse(fs.readFileSync("./rarities.json", "utf-8"));
-  res.json(sets);
-});
-
 app.get("/stats", (req, res) => {
   res.send(`
     <h1>Get Card Stats</h1>
@@ -232,75 +249,6 @@ app.get("/stats", (req, res) => {
 app.post("/stats", authenticateToken, (req, res) => {
   const stats = JSON.parse(fs.readFileSync("./stats.json", "utf-8"));
   res.json(stats);
-});
-
-app.get("/stats", (req, res) => {
-  res.send(`
-    <h1>Get Card Stats</h1>
-    <input type="text" id="token" placeholder="Paste your token here" style="width: 500px;" />
-    <button onclick="getStats()">Get Stats</button>
-    <pre id="result"></pre>
-    
-    <script>
-      async function getStats() {
-        const token = document.getElementById('token').value;
-        
-        try {
-          const response = await fetch('/stats', {
-            method: 'POST',
-            headers: {
-              'Authorization': 'Bearer ' + token
-            }
-          });
-          
-          const data = await response.json();
-          document.getElementById('result').textContent = JSON.stringify(data, null, 2);
-        } catch (error) {
-          document.getElementById('result').textContent = 'Error: ' + error.message;
-        }
-      }
-    </script>
-  `);
-});
-
-app.post("/stats", authenticateToken, (req, res) => {
-  const stats = JSON.parse(fs.readFileSync("./stats.json", "utf-8"));
-  res.json(stats);
-});
-
-app.get("/cards/random", (req, res) => {
-  res.send(`
-    <h1>Get Random Card</h1>
-    <input type="text" id="token" placeholder="Paste your token here" style="width: 500px;" />
-    <button onclick="getRandomCard()">Get Random Card</button>
-    <pre id="result"></pre>
-    
-    <script>
-      async function getRandomCard() {
-        const token = document.getElementById('token').value;
-        
-        try {
-          const response = await fetch('/cards/random', {
-            method: 'POST',
-            headers: {
-              'Authorization': 'Bearer ' + token
-            }
-          });
-          
-          const data = await response.json();
-          document.getElementById('result').textContent = JSON.stringify(data, null, 2);
-        } catch (error) {
-          document.getElementById('result').textContent = 'Error: ' + error.message;
-        }
-      }
-    </script>
-  `);
-});
-
-app.post("/cards/random", authenticateToken, (req, res) => {
-  const cards = JSON.parse(fs.readFileSync("./cards.json", "utf-8"));
-  const randomIndex = Math.floor(Math.random() * cards.length);
-  res.json(cards[randomIndex]);
 });
 
 app.listen(3000, () => {
