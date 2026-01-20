@@ -5,5 +5,7 @@ Cd into the folder
 3.
 Run this: docker build -t card-api .
 4.
-Run this: docker run -p 8080:3000 card-api
+Run this: docker run -p 8080:3000 card-api or
+Run: Docker swarm. then docker stack deploy -c docker-compose.yaml card-api
+
 
